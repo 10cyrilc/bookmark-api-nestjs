@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     AuthModule,
+    UserModule,
     PrismaModule,
   ],
 })
