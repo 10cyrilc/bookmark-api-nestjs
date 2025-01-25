@@ -4,7 +4,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { LoginDto, SignupDto } from '../src/auth/dto';
-import { EditUserDto } from 'src/user/dto';
+import { EditUserDto } from '../src/user/dto';
+import { CreateBookMarkDto, EditBookMarkDto } from '../src/bookmark/dto';
 
 const BASE_URL = 'http://localhost:3300';
 
@@ -34,6 +35,7 @@ describe('App e2e', () => {
     // Get the PrismaService instance from the app container and clean the database.
     primsa = app.get<PrismaService>(PrismaService);
     await primsa.cleanDb();
+    // Set the base URL for all requests.
     pactum.request.setBaseUrl(BASE_URL);
   });
 
@@ -177,15 +179,111 @@ describe('App e2e', () => {
 
     describe('Edit me', () => {});
   });
+
+  /**
+   * Test the Bookmark module.
+   * This module contains the bookmark endpoints.
+   * The create bookmark endpoint should return a 201 status code when a bookmark is created.
+   * The get all bookmarks endpoint should return a 200 status code when all bookmarks are fetched.
+   * The get bookmark by id endpoint should return a 200 status code when a bookmark is fetched by id.
+   * The edit bookmark by id endpoint should return a 200 status code when a bookmark is edited by id.
+   * The delete bookmark by id endpoint should return a 200 status code when a bookmark is deleted by id.
+   */
+
   describe('Bookmarks', () => {
-    describe('Create Bookmark', () => {});
+    describe('Get Empty Bookmarks', () => {
+      it('Should return empty array', () => {
+        return pactum
+          .spec()
+          .get(`/bookmarks`)
+          .withBearerToken(`$S{userAt}`)
+          .expectStatus(200)
+          .expectBody([]);
+      }, 10000);
+    });
 
-    describe('Get All Bookmarks', () => {});
+    describe('Create Bookmark', () => {
+      it('Should create a bookmark', () => {
+        const dto: CreateBookMarkDto = {
+          title: 'test',
+          link: 'http://test.com',
+        };
+        return pactum
+          .spec()
+          .post(`/bookmarks`)
+          .withBearerToken(`$S{userAt}`)
+          .withBody(dto)
+          .expectStatus(201)
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.link)
+          .stores('bookmarkId', 'id');
+      }, 10000);
+    });
 
-    describe('Get a Bookmark by ID', () => {});
+    describe('Get All Bookmarks', () => {
+      it('Should get all Bookmarks', () => {
+        return pactum
+          .spec()
+          .get(`/bookmarks`)
+          .withBearerToken(`$S{userAt}`)
+          .expectStatus(200)
+          .expectJsonLength(1);
+      }, 10000);
+    });
 
-    describe('Edit Bookmark by Id', () => {});
+    describe('Get a Bookmark by ID', () => {
+      it('Should get one Bookmark by ID', () => {
+        return pactum
+          .spec()
+          .get(`/bookmarks/{id}`)
+          .withPathParams('id', '$S{bookmarkId}')
+          .withBearerToken(`$S{userAt}`)
+          .expectStatus(200)
+          .expectBodyContains('$S{bookmarkId}');
+      }, 10000);
+    });
 
-    describe('Delete Bookmark by ID', () => {});
+    describe('Edit Bookmark by Id', () => {
+      it('Should edit and return one Bookmark by ID', () => {
+        const dto: EditBookMarkDto = {
+          title: 'test edit',
+          description: 'test description',
+          link: 'http://test.com/edit',
+        };
+        return pactum
+          .spec()
+          .patch(`/bookmarks/{id}`)
+          .withPathParams('id', '$S{bookmarkId}')
+          .withBearerToken(`$S{userAt}`)
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains('$S{bookmarkId}')
+          .expectBodyContains(dto.title)
+          .expectBodyContains(dto.description)
+          .expectBodyContains(dto.link);
+      }, 10000);
+    });
+
+    describe('Delete Bookmark by ID', () => {
+      it('Should delete one Bookmark by ID', () => {
+        return pactum
+          .spec()
+          .delete(`/bookmarks/{id}`)
+          .withPathParams('id', '$S{bookmarkId}')
+          .withBearerToken(`$S{userAt}`)
+          .expectStatus(204);
+      }, 10000);
+    });
+
+    describe('Verify Bookmark is Deleted', () => {
+      it('Should return empty array', () => {
+        return pactum
+          .spec()
+          .get(`/bookmarks`)
+          .withBearerToken(`$S{userAt}`)
+          .expectStatus(200)
+          .expectBody([]);
+      }, 10000);
+    });
   });
 });
