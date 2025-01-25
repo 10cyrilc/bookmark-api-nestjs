@@ -26,8 +26,8 @@ This project is a **Bookmarks API**, built using **NestJS**. It includes feature
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/10cyrilc/bookmarks-api.git
-   cd bookmarks-api
+   git clone https://github.com/10cyrilc/bookmark-api-nestjs.git
+   cd bookmark-api-nestjs
    ```
 
 2. Install dependencies:
@@ -38,16 +38,10 @@ This project is a **Bookmarks API**, built using **NestJS**. It includes feature
 
 3. Create environment variables
 
-4. Run Prisma migrations:
+4. Start the development server:
 
    ```bash
-   npx prisma migrate dev
-   ```
-
-5. Start the development server:
-
-   ```bash
-   npm run start:dev
+   yarn run start:dev
    ```
 
 ## 🚦 API Endpoints
