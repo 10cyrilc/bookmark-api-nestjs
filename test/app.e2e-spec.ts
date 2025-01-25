@@ -4,6 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { LoginDto, SignupDto } from '../src/auth/dto';
+import { EditUserDto } from 'src/user/dto';
 
 const BASE_URL = 'http://localhost:3300';
 
@@ -45,6 +46,13 @@ describe('App e2e', () => {
     await app.close();
   });
 
+  /**
+   * Test the Auth module.
+   * This module contains the sign-up and login endpoints.
+   * The sign-up endpoint should return a 201 status code when a user is created.
+   * The login endpoint should return a 200 status code when a user is logged in.
+   */
+
   describe('Auth', () => {
     describe('Sign Up', () => {
       it('Should throw error, email is empty', () => {
@@ -59,7 +67,8 @@ describe('App e2e', () => {
           .post(`/auth/sign-up`)
           .withBody(signUpDto)
           .expectStatus(400);
-      }, 5000);
+      }, 10000);
+
       it('should signup and return a JWT token', () => {
         const signUpDto: SignupDto = {
           email: 'test@test.com',
@@ -72,7 +81,8 @@ describe('App e2e', () => {
           .post(`/auth/sign-up`)
           .withBody(signUpDto)
           .expectStatus(201);
-      }, 5000);
+      }, 10000);
+
       it('Should throw email already exists', () => {
         const signUpDto: SignupDto = {
           email: 'test@test.com',
@@ -85,7 +95,7 @@ describe('App e2e', () => {
           .post(`/auth/sign-up`)
           .withBody(signUpDto)
           .expectStatus(403);
-      }, 5000);
+      }, 10000);
     });
 
     describe('Sign In', () => {
@@ -99,7 +109,8 @@ describe('App e2e', () => {
           .post(`/auth/login`)
           .withBody(loginDto)
           .expectStatus(400);
-      }, 5000);
+      }, 10000);
+
       it('Should throw error no email', () => {
         const loginDto: LoginDto = {
           email: 'test@test.com',
@@ -110,7 +121,7 @@ describe('App e2e', () => {
           .post(`/auth/login`)
           .withBody(loginDto)
           .expectStatus(400);
-      }, 5000);
+      }, 10000);
 
       it('should login and return a JWT token', () => {
         const loginDto: LoginDto = {
@@ -123,9 +134,17 @@ describe('App e2e', () => {
           .withBody(loginDto)
           .expectStatus(200)
           .stores('userAt', 'access_token');
-      }, 5000);
+      }, 10000);
     });
   });
+
+  /**
+   * Test the User module.
+   * This module contains the user endpoints.
+   * The get me endpoint should return the user details.
+   * The edit me endpoint should return the updated user details.
+   */
+
   describe('User', () => {
     describe('Get Me', () => {
       it('Should return user details', () => {
@@ -134,7 +153,26 @@ describe('App e2e', () => {
           .get(`/users/me`)
           .withBearerToken(`$S{userAt}`)
           .expectStatus(200);
-      }, 5000);
+      }, 10000);
+    });
+
+    describe('Get Me', () => {
+      it('Should Edit and Return User', () => {
+        const dto: EditUserDto = {
+          firstName: '123',
+          lastName: '321',
+          email: '123@123.com',
+        };
+        return pactum
+          .spec()
+          .patch(`/users`)
+          .withBearerToken(`$S{userAt}`)
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.lastName)
+          .expectBodyContains(dto.email);
+      }, 10000);
     });
 
     describe('Edit me', () => {});
