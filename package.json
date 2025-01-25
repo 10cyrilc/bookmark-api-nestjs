@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "cross-env NODE_ENV=test jest --watch --no-cache --config ./test/jest-e2e.json",
-    "migrate:dev": "cross-env NODE_ENV=development node scripts/migrate.js migrate dev --name init",
+    "migrate:dev": "cross-env NODE_ENV=dev node scripts/migrate.js migrate dev --name init",
     "migrate:test": "cross-env NODE_ENV=test node scripts/migrate.js migrate dev",
     "migrate:prod": "cross-env NODE_ENV=prod node scripts/migrate.js migrate deploy",
     "pretest:e2e": "yarn run migrate:test",
